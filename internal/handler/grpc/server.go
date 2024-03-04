@@ -4,8 +4,10 @@ import (
 	"context"
 	"net"
 
-	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
 	"google.golang.org/grpc"
+
+	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
 )
 
 type Server interface {
@@ -32,7 +34,14 @@ func (s *server) Start(ctx context.Context) error {
 
 	defer listener.Close()
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			validator.UnaryServerInterceptor(),
+		),
+		grpc.ChainStreamInterceptor(
+			validator.StreamServerInterceptor(),
+		),
+	)
 	go_load.RegisterGoLoadServiceServer(server, s.handler)
 	return server.Serve(listener)
 }

@@ -1,7 +1,6 @@
 syntax = "proto3";
-
 package go_load;
-
+import "api/validate.proto";
 option go_package = "grpc/go_load";
 
 service GoLoadService {
@@ -41,8 +40,12 @@ message DownloadTask {
 }
 
 message CreateAccountRequest {
-    string username = 1;
-    string password = 2;
+    string username = 1 [(validate.rules).string = {
+        pattern:   "^[a-zA-Z0-9]{6,32}$",
+    }];
+    string password = 2 [(validate.rules).string = {
+        pattern:   "^[a-zA-Z0-9]{6,32}$",
+    }];
 }
 
 message CreateAccountResponse {
@@ -50,8 +53,12 @@ message CreateAccountResponse {
 }
 
 message CreateSessionRequest {
-    string username = 1;
-    string password = 2;
+    string username = 1 [(validate.rules).string = {
+        pattern:   "^[a-zA-Z0-9]{6,32}$",
+    }];
+    string password = 2 [(validate.rules).string = {
+        pattern:   "^[a-zA-Z0-9]{6,32}$",
+    }];
 }
 
 message CreateSessionResponse {
@@ -61,7 +68,9 @@ message CreateSessionResponse {
 message CreateDownloadTaskRequest {
     string token = 1;
     DownloadType download_type = 2;
-    string url = 3;
+    string url = 3 [(validate.rules).string = {
+        uri: true,
+    }];
 }
 
 message CreateDownloadTaskResponse {
@@ -71,7 +80,9 @@ message CreateDownloadTaskResponse {
 message GetDownloadTaskListRequest {
     string token = 1;
     uint64 offset = 2;
-    uint64 limit = 3;
+    uint64 limit = 3 [(validate.rules).uint64 = {
+        lte: 100
+    }];
 }
 message GetDownloadTaskListResponse {
     repeated DownloadTask download_task_list = 1;
@@ -81,7 +92,9 @@ message GetDownloadTaskListResponse {
 message UpdateDownloadTaskRequest {
     string token = 1;
     uint64 download_task_id = 2;
-    string url = 3;
+    string url = 3 [(validate.rules).string = {
+        uri: true,
+    }];
 }
 message UpdateDownloadTaskResponse {
     DownloadTask download_task = 1;

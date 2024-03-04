@@ -3,6 +3,8 @@ module github.com/tranHieuDev23/GoLoad
 go 1.21.5
 
 require (
+	github.com/envoyproxy/protoc-gen-validate v1.0.4
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.32.0

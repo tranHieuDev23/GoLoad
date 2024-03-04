@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
 )
 
 type Server interface {
