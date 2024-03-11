@@ -27,12 +27,12 @@ func (s *server) Start(ctx context.Context) error {
 	if err := go_load.RegisterGoLoadServiceHandlerFromEndpoint(
 		ctx,
 		mux,
-		"/api",
+		"0.0.0.0:8080",
 		[]grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		}); err != nil {
 		return err
 	}
 
-	return http.ListenAndServe(":8080", mux)
+	return http.ListenAndServe(":8081", mux)
 }

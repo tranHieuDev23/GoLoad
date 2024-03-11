@@ -35,21 +35,21 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on User with the rules defined in the proto
-// definition for this message. If any rules are violated, the first error
-// encountered is returned, or nil if there are no violations.
-func (m *User) Validate() error {
+// Validate checks the field values on Account with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Account) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on User with the rules defined in the
+// ValidateAll checks the field values on Account with the rules defined in the
 // proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in UserMultiError, or nil if none found.
-func (m *User) ValidateAll() error {
+// a list of violation errors wrapped in AccountMultiError, or nil if none found.
+func (m *Account) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *User) validate(all bool) error {
+func (m *Account) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -58,21 +58,21 @@ func (m *User) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Username
+	// no validation rules for AccountName
 
 	if len(errors) > 0 {
-		return UserMultiError(errors)
+		return AccountMultiError(errors)
 	}
 
 	return nil
 }
 
-// UserMultiError is an error wrapping multiple validation errors returned by
-// User.ValidateAll() if the designated constraints aren't met.
-type UserMultiError []error
+// AccountMultiError is an error wrapping multiple validation errors returned
+// by Account.ValidateAll() if the designated constraints aren't met.
+type AccountMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UserMultiError) Error() string {
+func (m AccountMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -81,11 +81,11 @@ func (m UserMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UserMultiError) AllErrors() []error { return m }
+func (m AccountMultiError) AllErrors() []error { return m }
 
-// UserValidationError is the validation error returned by User.Validate if the
-// designated constraints aren't met.
-type UserValidationError struct {
+// AccountValidationError is the validation error returned by Account.Validate
+// if the designated constraints aren't met.
+type AccountValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -93,22 +93,22 @@ type UserValidationError struct {
 }
 
 // Field function returns field value.
-func (e UserValidationError) Field() string { return e.field }
+func (e AccountValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UserValidationError) Reason() string { return e.reason }
+func (e AccountValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UserValidationError) Cause() error { return e.cause }
+func (e AccountValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UserValidationError) Key() bool { return e.key }
+func (e AccountValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UserValidationError) ErrorName() string { return "UserValidationError" }
+func (e AccountValidationError) ErrorName() string { return "AccountValidationError" }
 
 // Error satisfies the builtin error interface
-func (e UserValidationError) Error() string {
+func (e AccountValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -120,14 +120,14 @@ func (e UserValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUser.%s: %s%s",
+		"invalid %sAccount.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UserValidationError{}
+var _ error = AccountValidationError{}
 
 var _ interface {
 	Field() string
@@ -135,7 +135,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UserValidationError{}
+} = AccountValidationError{}
 
 // Validate checks the field values on DownloadTask with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -162,11 +162,11 @@ func (m *DownloadTask) validate(all bool) error {
 	// no validation rules for Id
 
 	if all {
-		switch v := interface{}(m.GetOfUser()).(type) {
+		switch v := interface{}(m.GetOfAccount()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, DownloadTaskValidationError{
-					field:  "OfUser",
+					field:  "OfAccount",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -174,16 +174,16 @@ func (m *DownloadTask) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, DownloadTaskValidationError{
-					field:  "OfUser",
+					field:  "OfAccount",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOfUser()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetOfAccount()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DownloadTaskValidationError{
-				field:  "OfUser",
+				field:  "OfAccount",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -295,9 +295,9 @@ func (m *CreateAccountRequest) validate(all bool) error {
 
 	var errors []error
 
-	if !_CreateAccountRequest_Username_Pattern.MatchString(m.GetUsername()) {
+	if !_CreateAccountRequest_AccountName_Pattern.MatchString(m.GetAccountName()) {
 		err := CreateAccountRequestValidationError{
-			field:  "Username",
+			field:  "AccountName",
 			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{6,32}$\"",
 		}
 		if !all {
@@ -397,7 +397,7 @@ var _ interface {
 	ErrorName() string
 } = CreateAccountRequestValidationError{}
 
-var _CreateAccountRequest_Username_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
+var _CreateAccountRequest_AccountName_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
 
 var _CreateAccountRequest_Password_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
 
@@ -423,7 +423,7 @@ func (m *CreateAccountResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
+	// no validation rules for AccountId
 
 	if len(errors) > 0 {
 		return CreateAccountResponseMultiError(errors)
@@ -527,9 +527,9 @@ func (m *CreateSessionRequest) validate(all bool) error {
 
 	var errors []error
 
-	if !_CreateSessionRequest_Username_Pattern.MatchString(m.GetUsername()) {
+	if !_CreateSessionRequest_AccountName_Pattern.MatchString(m.GetAccountName()) {
 		err := CreateSessionRequestValidationError{
-			field:  "Username",
+			field:  "AccountName",
 			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{6,32}$\"",
 		}
 		if !all {
@@ -629,7 +629,7 @@ var _ interface {
 	ErrorName() string
 } = CreateSessionRequestValidationError{}
 
-var _CreateSessionRequest_Username_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
+var _CreateSessionRequest_AccountName_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
 
 var _CreateSessionRequest_Password_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{6,32}$")
 
@@ -654,6 +654,35 @@ func (m *CreateSessionResponse) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetAccount()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CreateSessionResponseValidationError{
+					field:  "Account",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CreateSessionResponseValidationError{
+					field:  "Account",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAccount()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateSessionResponseValidationError{
+				field:  "Account",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for Token
 
