@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/tranHieuDev23/GoLoad/internal/configs"
 )
 
 type Hash interface {
@@ -14,17 +15,17 @@ type Hash interface {
 }
 
 type hash struct {
-	accountConfig configs.Account
+	authConfig configs.Auth
 }
 
-func NewHash(accountConfig configs.Account) Hash {
+func NewHash(authConfig configs.Auth) Hash {
 	return &hash{
-		accountConfig: accountConfig,
+		authConfig: authConfig,
 	}
 }
 
 func (h hash) Hash(ctx context.Context, data string) (string, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(data), h.accountConfig.HashCost)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(data), h.authConfig.Hash.Cost)
 	if err != nil {
 		return "", err
 	}

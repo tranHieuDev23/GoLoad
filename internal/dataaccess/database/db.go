@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/doug-martin/goqu/v9"
+
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 
 	_ "github.com/go-sql-driver/mysql" // Import MySQL driver

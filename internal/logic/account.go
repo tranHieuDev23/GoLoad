@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/doug-martin/goqu/v9"
+
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
 )
 
@@ -26,7 +27,7 @@ type CreateSessionParams struct {
 
 type Account interface {
 	CreateAccount(ctx context.Context, params CreateAccountParams) (CreateAccountOutput, error)
-	CreateSession(ctx context.Context, params CreateSessionParams) (account Account, token string, err error)
+	CreateSession(ctx context.Context, params CreateSessionParams) (token string, err error)
 }
 
 type account struct {
@@ -34,6 +35,7 @@ type account struct {
 	accountDataAccessor         database.AccountDataAccessor
 	accountPasswordDataAccessor database.AccountPasswordDataAccessor
 	hashLogic                   Hash
+	tokenLogic                  Token
 }
 
 func NewAccount(
@@ -41,12 +43,14 @@ func NewAccount(
 	accountDataAccessor database.AccountDataAccessor,
 	accountPasswordDataAccessor database.AccountPasswordDataAccessor,
 	hashLogic Hash,
+	tokenLogic Token,
 ) Account {
 	return &account{
 		goquDatabase:                goquDatabase,
 		accountDataAccessor:         accountDataAccessor,
 		accountPasswordDataAccessor: accountPasswordDataAccessor,
 		hashLogic:                   hashLogic,
+		tokenLogic:                  tokenLogic,
 	}
 }
 
@@ -106,6 +110,25 @@ func (a account) CreateAccount(ctx context.Context, params CreateAccountParams) 
 	}, nil
 }
 
-func (a account) CreateSession(ctx context.Context, params CreateSessionParams) (account Account, token string, err error) {
-	return
+func (a account) CreateSession(ctx context.Context, params CreateSessionParams) (token string, err error) {
+	existingAccount, err := a.accountDataAccessor.GetAccountByAccountName(ctx, params.AccountName)
+	if err != nil {
+		return "", err
+	}
+
+	existingAccountPassword, err := a.accountPasswordDataAccessor.GetAccountPassword(ctx, existingAccount.ID)
+	if err != nil {
+		return "", err
+	}
+
+	isHashEqual, err := a.hashLogic.IsHashEqual(ctx, params.Password, existingAccountPassword.Hash)
+	if err != nil {
+		return "", err
+	}
+
+	if !isHashEqual {
+		return "", errors.New("incorrect password")
+	}
+
+	return "", nil
 }
