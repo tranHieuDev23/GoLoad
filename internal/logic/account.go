@@ -6,8 +6,11 @@ import (
 	"errors"
 
 	"github.com/doug-martin/goqu/v9"
+	"go.uber.org/zap"
 
+	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/cache"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
+	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
 type CreateAccountParams struct {
@@ -32,35 +35,54 @@ type Account interface {
 
 type account struct {
 	goquDatabase                *goqu.Database
+	takenAccountNameCache       cache.TakenAccountName
 	accountDataAccessor         database.AccountDataAccessor
 	accountPasswordDataAccessor database.AccountPasswordDataAccessor
 	hashLogic                   Hash
 	tokenLogic                  Token
+	logger                      *zap.Logger
 }
 
 func NewAccount(
 	goquDatabase *goqu.Database,
+	takenAccountNameCache cache.TakenAccountName,
 	accountDataAccessor database.AccountDataAccessor,
 	accountPasswordDataAccessor database.AccountPasswordDataAccessor,
 	hashLogic Hash,
 	tokenLogic Token,
+	logger *zap.Logger,
 ) Account {
 	return &account{
 		goquDatabase:                goquDatabase,
+		takenAccountNameCache:       takenAccountNameCache,
 		accountDataAccessor:         accountDataAccessor,
 		accountPasswordDataAccessor: accountPasswordDataAccessor,
 		hashLogic:                   hashLogic,
 		tokenLogic:                  tokenLogic,
+		logger:                      logger,
 	}
 }
 
 func (a account) isAccountAccountNameTaken(ctx context.Context, accountName string) (bool, error) {
+	logger := utils.LoggerWithContext(ctx, a.logger).With(zap.String("account_name", accountName))
+
+	accountNameTaken, err := a.takenAccountNameCache.Has(ctx, accountName)
+	if err != nil {
+		logger.With(zap.Error(err)).Warn("failed to get account name from taken set in cache, will fall back to database")
+	} else {
+		return accountNameTaken, nil
+	}
+
 	if _, err := a.accountDataAccessor.GetAccountByAccountName(ctx, accountName); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
 		}
 
 		return false, err
+	}
+
+	if err := a.takenAccountNameCache.Add(ctx, accountName); err != nil {
+		logger.With(zap.Error(err)).Warn("failed to set account name into taken set in cache")
 	}
 
 	return true, nil

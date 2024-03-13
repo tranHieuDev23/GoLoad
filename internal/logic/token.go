@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"database/sql"
 	"encoding/pem"
 	"errors"
 	"time"
@@ -13,12 +14,17 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
+	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/cache"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
 const (
 	rs512KeyPairBitCount = 2048
+)
+
+var (
+	errTokenPublicKeyNotFound = errors.New("token public key not found")
 )
 
 type Token interface {
@@ -38,6 +44,7 @@ func generateRSAKeyPair(bits int) (*rsa.PrivateKey, error) {
 
 type token struct {
 	accountDataAccessor        database.AccountDataAccessor
+	tokenPublicKeyCache        cache.TokenPublicKey
 	tokenPublicKeyDataAccessor database.TokenPublicKeyDataAccessor
 	expiresIn                  time.Duration
 	privateKey                 *rsa.PrivateKey
@@ -60,6 +67,7 @@ func pemEncodePublicKey(pubKey *rsa.PublicKey) ([]byte, error) {
 
 func NewToken(
 	accountDataAccessor database.AccountDataAccessor,
+	tokenPublicKeyCache cache.TokenPublicKey,
 	tokenPublicKeyDataAccessor database.TokenPublicKeyDataAccessor,
 	authConfig configs.Auth,
 	logger *zap.Logger,
@@ -93,6 +101,7 @@ func NewToken(
 
 	return &token{
 		accountDataAccessor:        accountDataAccessor,
+		tokenPublicKeyCache:        tokenPublicKeyCache,
 		tokenPublicKeyDataAccessor: tokenPublicKeyDataAccessor,
 		expiresIn:                  expiresIn,
 		privateKey:                 rsaKeyPair,
@@ -105,10 +114,26 @@ func NewToken(
 func (t token) getJWTPublicKey(ctx context.Context, id uint64) (*rsa.PublicKey, error) {
 	logger := utils.LoggerWithContext(ctx, t.logger).With(zap.Uint64("id", id))
 
+	cachedPublicKeyBytes, err := t.tokenPublicKeyCache.Get(ctx, id)
+	if err == nil && cachedPublicKeyBytes != nil {
+		return jwt.ParseRSAPublicKeyFromPEM(cachedPublicKeyBytes)
+	}
+
+	logger.With(zap.Error(err)).Warn("failed to get cached public key bytes, will fail back to database")
+
 	tokenPublicKey, err := t.tokenPublicKeyDataAccessor.GetPublicKey(ctx, id)
 	if err != nil {
-		logger.Error("cannot get token's public key from database")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errTokenPublicKeyNotFound
+		}
+
+		logger.With(zap.Error(err)).Error("cannot get token's public key from database")
 		return nil, err
+	}
+
+	err = t.tokenPublicKeyCache.Set(ctx, id, tokenPublicKey.PublicKey)
+	if err != nil {
+		logger.With(zap.Error(err)).Warn("failed to set public key bytes into cache")
 	}
 
 	return jwt.ParseRSAPublicKeyFromPEM(tokenPublicKey.PublicKey)
