@@ -6,6 +6,8 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
@@ -55,13 +57,13 @@ func (a accountDataAccessor) CreateAccount(ctx context.Context, account Account)
 		ExecContext(ctx)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to create account")
-		return 0, err
+		return 0, status.Errorf(codes.Internal, "failed to create account: %+v", err)
 	}
 
 	lastInsertedID, err := result.LastInsertId()
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to get last inserted id")
-		return 0, err
+		return 0, status.Errorf(codes.Internal, "failed to get last inserted id: %+v", err)
 	}
 
 	return uint64(lastInsertedID), nil
@@ -76,7 +78,7 @@ func (a accountDataAccessor) GetAccountByID(ctx context.Context, id uint64) (Acc
 		ScanStructContext(ctx, &account)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to get account by id")
-		return Account{}, err
+		return Account{}, status.Errorf(codes.Internal, "failed to get account by id: %+v", err)
 	}
 
 	if !found {
@@ -95,12 +97,12 @@ func (a accountDataAccessor) GetAccountByAccountName(ctx context.Context, accoun
 		Where(goqu.Ex{ColNameAccountsAccountName: accountName}).
 		ScanStructContext(ctx, &account)
 	if err != nil {
-		logger.With(zap.Error(err)).Error("failed to get account by id")
-		return Account{}, err
+		logger.With(zap.Error(err)).Error("failed to get account by name")
+		return Account{}, status.Errorf(codes.Internal, "failed to get account by name: %+v", err)
 	}
 
 	if !found {
-		logger.Warn("cannot find account by id")
+		logger.Warn("cannot find account by name")
 		return Account{}, sql.ErrNoRows
 	}
 

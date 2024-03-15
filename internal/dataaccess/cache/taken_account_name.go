@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"go.uber.org/zap"
+
+	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
 const (
@@ -31,7 +33,10 @@ func NewTakenAccountName(
 }
 
 func (c takenAccountName) Add(ctx context.Context, accountName string) error {
+	logger := utils.LoggerWithContext(ctx, c.logger).With(zap.String("account_name", accountName))
+
 	if err := c.client.AddToSet(ctx, setKeyNameTakenAccountName, accountName); err != nil {
+		logger.With(zap.Error(err)).Error("failed to add account name to set in cache")
 		return err
 	}
 
@@ -39,5 +44,12 @@ func (c takenAccountName) Add(ctx context.Context, accountName string) error {
 }
 
 func (c takenAccountName) Has(ctx context.Context, accountName string) (bool, error) {
-	return c.client.IsDataInSet(ctx, setKeyNameTakenAccountName, accountName)
+	logger := utils.LoggerWithContext(ctx, c.logger).With(zap.String("account_name", accountName))
+	result, err := c.client.IsDataInSet(ctx, setKeyNameTakenAccountName, accountName)
+	if err != nil {
+		logger.With(zap.Error(err)).Error("failed to check if account name is in set in cache")
+		return false, err
+	}
+
+	return result, nil
 }

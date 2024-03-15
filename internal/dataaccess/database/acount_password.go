@@ -6,6 +6,8 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
@@ -55,13 +57,16 @@ func (a accountPasswordDataAccessor) CreateAccountPassword(ctx context.Context, 
 		ExecContext(ctx)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to create account password")
-		return err
+		return status.Errorf(codes.Internal, "failed to create account password: %+v", err)
 	}
 
 	return nil
 }
 
-func (a accountPasswordDataAccessor) GetAccountPassword(ctx context.Context, ofAccountID uint64) (AccountPassword, error) {
+func (a accountPasswordDataAccessor) GetAccountPassword(
+	ctx context.Context,
+	ofAccountID uint64,
+) (AccountPassword, error) {
 	logger := utils.LoggerWithContext(ctx, a.logger).With(zap.Uint64("of_account_id", ofAccountID))
 	accountPassword := AccountPassword{}
 	found, err := a.database.
@@ -70,7 +75,7 @@ func (a accountPasswordDataAccessor) GetAccountPassword(ctx context.Context, ofA
 		ScanStructContext(ctx, &accountPassword)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to get account password by id")
-		return AccountPassword{}, err
+		return AccountPassword{}, status.Errorf(codes.Internal, "failed to get account password by id: %+v", err)
 	}
 
 	if !found {
@@ -91,7 +96,7 @@ func (a accountPasswordDataAccessor) UpdateAccountPassword(ctx context.Context, 
 		ExecContext(ctx)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to update account password")
-		return err
+		return status.Errorf(codes.Internal, "failed to update account password: %+v", err)
 	}
 
 	return nil

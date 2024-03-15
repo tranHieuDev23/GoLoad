@@ -7,6 +7,7 @@ import (
 var WireSet = wire.NewSet(
 	InitializeDB,
 	InitializeGoquDB,
+	NewMigrator,
 	NewAccountDataAccessor,
 	NewAccountPasswordDataAccessor,
 	NewDownloadTaskDataAccessor,

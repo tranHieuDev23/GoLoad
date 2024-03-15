@@ -7,6 +7,8 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
@@ -31,7 +33,7 @@ type client struct {
 func NewClient(
 	cacheConfig configs.Cache,
 	logger *zap.Logger,
-) (Client, error) {
+) Client {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     cacheConfig.Address,
 		Username: cacheConfig.Username,
@@ -41,7 +43,7 @@ func NewClient(
 	return &client{
 		redisClient: redisClient,
 		logger:      logger,
-	}, nil
+	}
 }
 
 func (r client) Set(ctx context.Context, key string, data any, ttl time.Duration) error {
@@ -52,7 +54,7 @@ func (r client) Set(ctx context.Context, key string, data any, ttl time.Duration
 
 	if err := r.redisClient.Set(ctx, key, data, ttl).Err(); err != nil {
 		logger.With(zap.Error(err)).Error("failed to set data into cache")
-		return err
+		return status.Errorf(codes.Internal, "failed to set data into cache: %+v", err)
 	}
 
 	return nil
@@ -69,7 +71,7 @@ func (r client) Get(ctx context.Context, key string) (any, error) {
 		}
 
 		logger.With(zap.Error(err)).Error("failed to get data from cache")
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get data from cache: %+v", err)
 	}
 
 	return data, nil
@@ -82,7 +84,7 @@ func (r client) AddToSet(ctx context.Context, key string, data ...any) error {
 
 	if err := r.redisClient.SAdd(ctx, key, data...).Err(); err != nil {
 		logger.With(zap.Error(err)).Error("failed to set data into set inside cache")
-		return err
+		return status.Errorf(codes.Internal, "failed to set data into set inside cache: %+v", err)
 	}
 
 	return nil
@@ -96,7 +98,7 @@ func (r client) IsDataInSet(ctx context.Context, key string, data any) (bool, er
 	result, err := r.redisClient.SIsMember(ctx, key, data).Result()
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to check if data is member of set inside cache")
-		return false, err
+		return false, status.Errorf(codes.Internal, "failed to check if data is member of set inside cache: %+v", err)
 	}
 
 	return result, nil

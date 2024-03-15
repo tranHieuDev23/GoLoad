@@ -1,0 +1,20 @@
+database:
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: example
+  database: goload
+cache:
+  address: "127.0.0.1:6379"
+  username: ""
+  password: ""
+auth:
+  hash:
+    cost: 10
+  token:
+    expires_in: 24h
+    regenerate_token_before_expiry: 1h
+grpc:
+  address: "0.0.0.0:8080"
+http:
+  address: "0.0.0.0:8081"

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/doug-martin/goqu/v9"
 
@@ -43,7 +45,10 @@ func NewTokenPublicKeyDataAccessor(
 	}
 }
 
-func (a tokenPublicKeyDataAccessor) CreatePublicKey(ctx context.Context, tokenPublicKey TokenPublicKey) (uint64, error) {
+func (a tokenPublicKeyDataAccessor) CreatePublicKey(
+	ctx context.Context,
+	tokenPublicKey TokenPublicKey,
+) (uint64, error) {
 	logger := utils.LoggerWithContext(ctx, a.logger)
 	result, err := a.database.
 		Insert(TabNameTokenPublicKeys).
@@ -54,13 +59,13 @@ func (a tokenPublicKeyDataAccessor) CreatePublicKey(ctx context.Context, tokenPu
 		ExecContext(ctx)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to create token public key")
-		return 0, err
+		return 0, status.Errorf(codes.Internal, "failed to create token public key: %+v", err)
 	}
 
 	lastInsertedID, err := result.LastInsertId()
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to get last inserted id")
-		return 0, err
+		return 0, status.Errorf(codes.Internal, "failed to get last inserted id: %+v", err)
 	}
 
 	return uint64(lastInsertedID), nil
@@ -70,14 +75,17 @@ func (a tokenPublicKeyDataAccessor) GetPublicKey(ctx context.Context, id uint64)
 	logger := utils.LoggerWithContext(ctx, a.logger).With(zap.Uint64("id", id))
 
 	tokenPublicKey := TokenPublicKey{}
-	found, err := a.database.Select().From(TabNameTokenPublicKeys).Where(goqu.Ex{
-		ColNameTokenPublicKeysID: id,
-	}).
+	found, err := a.database.
+		Select().
+		From(TabNameTokenPublicKeys).
+		Where(goqu.Ex{
+			ColNameTokenPublicKeysID: id,
+		}).
 		Executor().
 		ScanStructContext(ctx, &tokenPublicKey)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to get public key")
-		return TokenPublicKey{}, err
+		return TokenPublicKey{}, status.Errorf(codes.Internal, "failed to get public key: %+v", err)
 	}
 
 	if !found {
