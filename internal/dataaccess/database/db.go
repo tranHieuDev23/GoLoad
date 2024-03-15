@@ -11,7 +11,8 @@ import (
 
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 
-	_ "github.com/go-sql-driver/mysql" // Import MySQL driver
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql" // Import MySQL goqu dialect
+	_ "github.com/go-sql-driver/mysql"               // Import MySQL driver
 )
 
 type Database interface {

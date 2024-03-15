@@ -12,8 +12,11 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
+var (
+	TabNameAccountPasswords = goqu.T("account_passwords")
+)
+
 const (
-	TabNameAccountPasswords            = "account_passwords"
 	ColNameAccountPasswordsOfAccountID = "of_account_id"
 	ColNameAccountPasswordsHash        = "hash"
 )

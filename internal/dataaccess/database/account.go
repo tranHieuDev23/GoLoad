@@ -12,8 +12,11 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
+var (
+	TabNameAccounts = goqu.T("accounts")
+)
+
 const (
-	TabNameAccounts            = "accounts"
 	ColNameAccountsID          = "id"
 	ColNameAccountsAccountName = "account_name"
 )

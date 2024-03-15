@@ -13,15 +13,18 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
+var (
+	TabNameTokenPublicKeys = goqu.T("token_public_keys")
+)
+
 const (
-	TabNameTokenPublicKeys          = "token_public_keys"
 	ColNameTokenPublicKeysID        = "id"
 	ColNameTokenPublicKeysPublicKey = "public_key"
 )
 
 type TokenPublicKey struct {
 	ID        uint64 `sql:"id"`
-	PublicKey []byte `sql:"public_key"`
+	PublicKey string `sql:"public_key"`
 }
 
 type TokenPublicKeyDataAccessor interface {
