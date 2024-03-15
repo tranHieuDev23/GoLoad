@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/doug-martin/goqu/v9"
+	"go.uber.org/zap"
 
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 
@@ -41,8 +42,8 @@ type Database interface {
 	Update(table interface{}) *goqu.UpdateDataset
 }
 
-func InitializeDB(databaseConfig configs.Database) (*sql.DB, func(), error) {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
+func InitializeAndMigrateUpDB(databaseConfig configs.Database, logger *zap.Logger) (*sql.DB, func(), error) {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		databaseConfig.Username,
 		databaseConfig.Password,
 		databaseConfig.Host,
@@ -58,6 +59,12 @@ func InitializeDB(databaseConfig configs.Database) (*sql.DB, func(), error) {
 
 	cleanup := func() {
 		db.Close()
+	}
+
+	migrator := NewMigrator(db, logger)
+	err = migrator.Up(context.Background())
+	if err != nil {
+		logger.With(zap.Error(err)).Error("failed to execute database up migration")
 	}
 
 	return db, cleanup, nil
