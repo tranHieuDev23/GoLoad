@@ -74,6 +74,14 @@ build:
 clean:
 	rm -rf build/
 
+.PHONY: docker-compose-dev-up
+docker-compose-dev-up:
+	docker-compose -f deployments/docker-compose.dev.yml up -d
+
+.PHONY: docker-compose-dev-down
+docker-compose-dev-down:
+	docker-compose -f deployments/docker-compose.dev.yml down
+
 .PHONY: run-server
 run-server:
 	go run cmd/$(PROJECT_NAME)/*.go server

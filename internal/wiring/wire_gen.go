@@ -41,7 +41,7 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 	}
 	goquDatabase := database.InitializeGoquDB(db)
 	configsCache := config.Cache
-	client := cache.NewClient(configsCache, logger)
+	client := cache.NewRedisClient(configsCache, logger)
 	takenAccountName := cache.NewTakenAccountName(client, logger)
 	accountDataAccessor := database.NewAccountDataAccessor(goquDatabase, logger)
 	accountPasswordDataAccessor := database.NewAccountPasswordDataAccessor(goquDatabase, logger)
