@@ -792,20 +792,10 @@ func (m *CreateDownloadTaskRequest) validate(all bool) error {
 
 	// no validation rules for DownloadType
 
-	if uri, err := url.Parse(m.GetUrl()); err != nil {
-		err = CreateDownloadTaskRequestValidationError{
-			field:  "Url",
-			reason: "value must be a valid URI",
-			cause:  err,
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	} else if !uri.IsAbs() {
+	if utf8.RuneCountInString(m.GetUrl()) > 2000 {
 		err := CreateDownloadTaskRequestValidationError{
 			field:  "Url",
-			reason: "value must be absolute",
+			reason: "value length must be at most 2000 runes",
 		}
 		if !all {
 			return err

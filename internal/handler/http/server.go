@@ -40,10 +40,10 @@ func NewServer(
 func (s server) Start(ctx context.Context) error {
 	logger := utils.LoggerWithContext(ctx, s.logger)
 
-	mux := runtime.NewServeMux()
+	grpcMux := runtime.NewServeMux()
 	if err := go_load.RegisterGoLoadServiceHandlerFromEndpoint(
 		ctx,
-		mux,
+		grpcMux,
 		s.grpcConfig.Address,
 		[]grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -54,7 +54,7 @@ func (s server) Start(ctx context.Context) error {
 	httpServer := http.Server{
 		Addr:              s.httpConfig.Address,
 		ReadHeaderTimeout: time.Minute,
-		Handler:           mux,
+		Handler:           grpcMux,
 	}
 
 	logger.With(zap.String("address", s.httpConfig.Address)).Info("starting http server")

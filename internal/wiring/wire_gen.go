@@ -14,7 +14,10 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/cache"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
+	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/consumer"
+	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/producer"
 	"github.com/tranHieuDev23/GoLoad/internal/handler"
+	"github.com/tranHieuDev23/GoLoad/internal/handler/consumers"
 	"github.com/tranHieuDev23/GoLoad/internal/handler/grpc"
 	"github.com/tranHieuDev23/GoLoad/internal/handler/http"
 	"github.com/tranHieuDev23/GoLoad/internal/logic"
@@ -56,12 +59,30 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 		return nil, nil, err
 	}
 	account := logic.NewAccount(goquDatabase, takenAccountName, accountDataAccessor, accountPasswordDataAccessor, hash, token, logger)
-	goLoadServiceServer := grpc.NewHandler(account)
+	downloadTaskDataAccessor := database.NewDownloadTaskDataAccessor(goquDatabase, logger)
+	mq := config.MQ
+	producerClient, err := producer.NewClient(mq, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	downloadTaskCreatedProducer := producer.NewDownloadTaskCreatedProducer(producerClient, logger)
+	downloadTask := logic.NewDownloadTask(token, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, logger)
+	goLoadServiceServer := grpc.NewHandler(account, downloadTask)
 	configsGRPC := config.GRPC
 	server := grpc.NewServer(goLoadServiceServer, configsGRPC, logger)
 	configsHTTP := config.HTTP
 	httpServer := http.NewServer(configsGRPC, configsHTTP, logger)
-	appServer := app.NewServer(server, httpServer, logger)
+	downloadTaskCreated := consumers.NewDownloadTaskCreated(logger)
+	consumerConsumer, err := consumer.NewConsumer(mq, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	root := consumers.NewRoot(downloadTaskCreated, consumerConsumer, logger)
+	appServer := app.NewServer(server, httpServer, root, logger)
 	return appServer, func() {
 		cleanup2()
 		cleanup()

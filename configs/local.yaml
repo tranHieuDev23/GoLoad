@@ -9,6 +9,10 @@ cache:
   address: "127.0.0.1:6379"
   username: ""
   password: ""
+mq:
+  addresses:
+    - 127.0.0.1:9092
+  client_id: "goload"
 auth:
   hash:
     cost: 10

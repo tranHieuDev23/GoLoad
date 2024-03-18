@@ -1,6 +1,12 @@
+# github.com/IBM/sarama v1.43.0
+## explicit; go 1.19
+github.com/IBM/sarama
 # github.com/cespare/xxhash/v2 v2.2.0
 ## explicit; go 1.11
 github.com/cespare/xxhash/v2
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
 # github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
 ## explicit
 github.com/dgryski/go-rendezvous
@@ -15,6 +21,15 @@ github.com/doug-martin/goqu/v9/internal/sb
 github.com/doug-martin/goqu/v9/internal/tag
 github.com/doug-martin/goqu/v9/internal/util
 github.com/doug-martin/goqu/v9/sqlgen
+# github.com/eapache/go-resiliency v1.6.0
+## explicit; go 1.13
+github.com/eapache/go-resiliency/breaker
+# github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3
+## explicit; go 1.17
+github.com/eapache/go-xerial-snappy
+# github.com/eapache/queue v1.1.0
+## explicit
+github.com/eapache/queue
 # github.com/envoyproxy/protoc-gen-validate v1.0.4
 ## explicit; go 1.19
 github.com/envoyproxy/protoc-gen-validate/validate
@@ -40,6 +55,9 @@ github.com/golang-jwt/jwt
 # github.com/golang/protobuf v1.5.3
 ## explicit; go 1.9
 github.com/golang/protobuf/proto
+# github.com/golang/snappy v0.0.4
+## explicit
+github.com/golang/snappy
 # github.com/google/wire v0.6.0
 ## explicit; go 1.12
 github.com/google/wire
@@ -51,9 +69,85 @@ github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator
 github.com/grpc-ecosystem/grpc-gateway/v2/internal/httprule
 github.com/grpc-ecosystem/grpc-gateway/v2/runtime
 github.com/grpc-ecosystem/grpc-gateway/v2/utilities
+# github.com/hashicorp/errwrap v1.1.0
+## explicit
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-multierror v1.1.1
+## explicit; go 1.13
+github.com/hashicorp/go-multierror
+# github.com/hashicorp/go-uuid v1.0.3
+## explicit
+github.com/hashicorp/go-uuid
 # github.com/inconshreveable/mousetrap v1.1.0
 ## explicit; go 1.18
 github.com/inconshreveable/mousetrap
+# github.com/jcmturner/aescts/v2 v2.0.0
+## explicit; go 1.13
+github.com/jcmturner/aescts/v2
+# github.com/jcmturner/dnsutils/v2 v2.0.0
+## explicit; go 1.13
+github.com/jcmturner/dnsutils/v2
+# github.com/jcmturner/gofork v1.7.6
+## explicit; go 1.7
+github.com/jcmturner/gofork/encoding/asn1
+github.com/jcmturner/gofork/x/crypto/pbkdf2
+# github.com/jcmturner/gokrb5/v8 v8.4.4
+## explicit; go 1.16
+github.com/jcmturner/gokrb5/v8/asn1tools
+github.com/jcmturner/gokrb5/v8/client
+github.com/jcmturner/gokrb5/v8/config
+github.com/jcmturner/gokrb5/v8/credentials
+github.com/jcmturner/gokrb5/v8/crypto
+github.com/jcmturner/gokrb5/v8/crypto/common
+github.com/jcmturner/gokrb5/v8/crypto/etype
+github.com/jcmturner/gokrb5/v8/crypto/rfc3961
+github.com/jcmturner/gokrb5/v8/crypto/rfc3962
+github.com/jcmturner/gokrb5/v8/crypto/rfc4757
+github.com/jcmturner/gokrb5/v8/crypto/rfc8009
+github.com/jcmturner/gokrb5/v8/gssapi
+github.com/jcmturner/gokrb5/v8/iana
+github.com/jcmturner/gokrb5/v8/iana/addrtype
+github.com/jcmturner/gokrb5/v8/iana/adtype
+github.com/jcmturner/gokrb5/v8/iana/asnAppTag
+github.com/jcmturner/gokrb5/v8/iana/chksumtype
+github.com/jcmturner/gokrb5/v8/iana/errorcode
+github.com/jcmturner/gokrb5/v8/iana/etypeID
+github.com/jcmturner/gokrb5/v8/iana/flags
+github.com/jcmturner/gokrb5/v8/iana/keyusage
+github.com/jcmturner/gokrb5/v8/iana/msgtype
+github.com/jcmturner/gokrb5/v8/iana/nametype
+github.com/jcmturner/gokrb5/v8/iana/patype
+github.com/jcmturner/gokrb5/v8/kadmin
+github.com/jcmturner/gokrb5/v8/keytab
+github.com/jcmturner/gokrb5/v8/krberror
+github.com/jcmturner/gokrb5/v8/messages
+github.com/jcmturner/gokrb5/v8/pac
+github.com/jcmturner/gokrb5/v8/types
+# github.com/jcmturner/rpc/v2 v2.0.3
+## explicit; go 1.13
+github.com/jcmturner/rpc/v2/mstypes
+github.com/jcmturner/rpc/v2/ndr
+# github.com/klauspost/compress v1.17.7
+## explicit; go 1.20
+github.com/klauspost/compress
+github.com/klauspost/compress/flate
+github.com/klauspost/compress/fse
+github.com/klauspost/compress/gzip
+github.com/klauspost/compress/huff0
+github.com/klauspost/compress/internal/cpuinfo
+github.com/klauspost/compress/internal/snapref
+github.com/klauspost/compress/zstd
+github.com/klauspost/compress/zstd/internal/xxhash
+# github.com/pierrec/lz4/v4 v4.1.21
+## explicit; go 1.14
+github.com/pierrec/lz4/v4
+github.com/pierrec/lz4/v4/internal/lz4block
+github.com/pierrec/lz4/v4/internal/lz4errors
+github.com/pierrec/lz4/v4/internal/lz4stream
+github.com/pierrec/lz4/v4/internal/xxh32
+# github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
+## explicit
+github.com/rcrowley/go-metrics
 # github.com/rogpeppe/go-internal v1.12.0
 ## explicit; go 1.20
 # github.com/rubenv/sql-migrate v1.6.1
@@ -80,19 +174,23 @@ go.uber.org/zap/internal/exit
 go.uber.org/zap/internal/pool
 go.uber.org/zap/internal/stacktrace
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.18.0
+# golang.org/x/crypto v0.19.0
 ## explicit; go 1.18
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
-# golang.org/x/net v0.20.0
+golang.org/x/crypto/md4
+golang.org/x/crypto/pbkdf2
+# golang.org/x/net v0.21.0
 ## explicit; go 1.18
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
+golang.org/x/net/internal/socks
 golang.org/x/net/internal/timeseries
+golang.org/x/net/proxy
 golang.org/x/net/trace
-# golang.org/x/sys v0.16.0
+# golang.org/x/sys v0.17.0
 ## explicit; go 1.18
 golang.org/x/sys/unix
 golang.org/x/sys/windows

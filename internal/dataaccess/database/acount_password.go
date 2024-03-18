@@ -22,8 +22,8 @@ const (
 )
 
 type AccountPassword struct {
-	OfAccountID uint64 `sql:"of_account_id"`
-	Hash        string `sql:"hash"`
+	OfAccountID uint64 `db:"of_account_id"`
+	Hash        string `db:"hash"`
 }
 
 type AccountPasswordDataAccessor interface {
@@ -73,7 +73,7 @@ func (a accountPasswordDataAccessor) GetAccountPassword(
 	logger := utils.LoggerWithContext(ctx, a.logger).With(zap.Uint64("of_account_id", ofAccountID))
 	accountPassword := AccountPassword{}
 	found, err := a.database.
-		From(TabNameAccounts).
+		From(TabNameAccountPasswords).
 		Where(goqu.Ex{ColNameAccountPasswordsOfAccountID: ofAccountID}).
 		ScanStructContext(ctx, &accountPassword)
 	if err != nil {

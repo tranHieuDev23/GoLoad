@@ -23,8 +23,8 @@ const (
 )
 
 type TokenPublicKey struct {
-	ID        uint64 `sql:"id"`
-	PublicKey string `sql:"public_key"`
+	ID        uint64 `db:"id"`
+	PublicKey string `db:"public_key"`
 }
 
 type TokenPublicKeyDataAccessor interface {

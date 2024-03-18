@@ -70,7 +70,7 @@ message CreateDownloadTaskRequest {
     string token = 1;
     DownloadType download_type = 2;
     string url = 3 [(validate.rules).string = {
-        uri: true,
+        max_len: 2000
     }];
 }
 
