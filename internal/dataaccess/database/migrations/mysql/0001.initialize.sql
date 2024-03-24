@@ -2,7 +2,8 @@
 CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT UNSIGNED AUTO_INCREMENT,
     account_name VARCHAR(256) NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (account_name)
 );
 
 CREATE TABLE IF NOT EXISTS account_passwords (

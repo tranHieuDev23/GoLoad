@@ -47,18 +47,17 @@ func NewServer(
 	}
 }
 
-func (s server) Start(ctx context.Context) error {
-	logger := utils.LoggerWithContext(ctx, s.logger)
-
+func (s server) getGRPCGatewayHandler(ctx context.Context) (http.Handler, error) {
 	tokenExpiresInDuration, err := s.authConfig.Token.GetExpiresInDuration()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	grpcMux := runtime.NewServeMux(
 		servemuxoptions.WithAuthCookieToAuthMetadata(AuthTokenCookieName, handlerGRPC.AuthTokenMetadataName),
 		servemuxoptions.WithAuthMetadataToAuthCookie(
 			handlerGRPC.AuthTokenMetadataName, AuthTokenCookieName, tokenExpiresInDuration),
+		servemuxoptions.WithRemoveGoAuthMetadata(handlerGRPC.AuthTokenMetadataName),
 	)
 	err = go_load.RegisterGoLoadServiceHandlerFromEndpoint(
 		ctx,
@@ -68,13 +67,24 @@ func (s server) Start(ctx context.Context) error {
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		})
 	if err != nil {
+		return nil, err
+	}
+
+	return grpcMux, nil
+}
+
+func (s server) Start(ctx context.Context) error {
+	logger := utils.LoggerWithContext(ctx, s.logger)
+
+	grpcGatewayHandler, err := s.getGRPCGatewayHandler(ctx)
+	if err != nil {
 		return err
 	}
 
 	httpServer := http.Server{
 		Addr:              s.httpConfig.Address,
 		ReadHeaderTimeout: time.Minute,
-		Handler:           grpcMux,
+		Handler:           grpcGatewayHandler,
 	}
 
 	logger.With(zap.String("address", s.httpConfig.Address)).Info("starting http server")

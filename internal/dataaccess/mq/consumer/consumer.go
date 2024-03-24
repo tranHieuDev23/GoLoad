@@ -22,8 +22,8 @@ type Consumer interface {
 
 type consumer struct {
 	saramaConsumer            sarama.Consumer
-	queueNameToHandlerFuncMap map[string]HandlerFunc
 	logger                    *zap.Logger
+	queueNameToHandlerFuncMap map[string]HandlerFunc
 }
 
 func newSaramaConfig(mqConfig configs.MQ) *sarama.Config {
@@ -43,8 +43,9 @@ func NewConsumer(
 	}
 
 	return &consumer{
-		saramaConsumer: saramaConsumer,
-		logger:         logger,
+		saramaConsumer:            saramaConsumer,
+		logger:                    logger,
+		queueNameToHandlerFuncMap: make(map[string]HandlerFunc),
 	}, nil
 }
 
