@@ -12,7 +12,14 @@ import (
 
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
+	handlerGRPC "github.com/tranHieuDev23/GoLoad/internal/handler/grpc"
+	"github.com/tranHieuDev23/GoLoad/internal/handler/http/servemuxoptions"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
+)
+
+const (
+	//nolint:gosec // This is just to specify the cookie name
+	AuthTokenCookieName = "GOLOAD_AUTH"
 )
 
 type Server interface {
@@ -22,17 +29,20 @@ type Server interface {
 type server struct {
 	grpcConfig configs.GRPC
 	httpConfig configs.HTTP
+	authConfig configs.Auth
 	logger     *zap.Logger
 }
 
 func NewServer(
 	grpcConfig configs.GRPC,
 	httpConfig configs.HTTP,
+	authConfig configs.Auth,
 	logger *zap.Logger,
 ) Server {
 	return &server{
 		grpcConfig: grpcConfig,
 		httpConfig: httpConfig,
+		authConfig: authConfig,
 		logger:     logger,
 	}
 }
@@ -40,14 +50,24 @@ func NewServer(
 func (s server) Start(ctx context.Context) error {
 	logger := utils.LoggerWithContext(ctx, s.logger)
 
-	grpcMux := runtime.NewServeMux()
-	if err := go_load.RegisterGoLoadServiceHandlerFromEndpoint(
+	tokenExpiresInDuration, err := s.authConfig.Token.GetExpiresInDuration()
+	if err != nil {
+		return err
+	}
+
+	grpcMux := runtime.NewServeMux(
+		servemuxoptions.WithAuthCookieToAuthMetadata(AuthTokenCookieName, handlerGRPC.AuthTokenMetadataName),
+		servemuxoptions.WithAuthMetadataToAuthCookie(
+			handlerGRPC.AuthTokenMetadataName, AuthTokenCookieName, tokenExpiresInDuration),
+	)
+	err = go_load.RegisterGoLoadServiceHandlerFromEndpoint(
 		ctx,
 		grpcMux,
 		s.grpcConfig.Address,
 		[]grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		}); err != nil {
+		})
+	if err != nil {
 		return err
 	}
 

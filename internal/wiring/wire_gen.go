@@ -73,7 +73,7 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 	configsGRPC := config.GRPC
 	server := grpc.NewServer(goLoadServiceServer, configsGRPC, logger)
 	configsHTTP := config.HTTP
-	httpServer := http.NewServer(configsGRPC, configsHTTP, logger)
+	httpServer := http.NewServer(configsGRPC, configsHTTP, auth, logger)
 	downloadTaskCreated := consumers.NewDownloadTaskCreated(logger)
 	consumerConsumer, err := consumer.NewConsumer(mq, logger)
 	if err != nil {

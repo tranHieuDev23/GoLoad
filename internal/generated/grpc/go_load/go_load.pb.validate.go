@@ -684,8 +684,6 @@ func (m *CreateSessionResponse) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Token
-
 	if len(errors) > 0 {
 		return CreateSessionResponseMultiError(errors)
 	}
@@ -787,8 +785,6 @@ func (m *CreateDownloadTaskRequest) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Token
 
 	// no validation rules for DownloadType
 
@@ -1035,8 +1031,6 @@ func (m *GetDownloadTaskListRequest) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Token
 
 	// no validation rules for Offset
 
@@ -1291,8 +1285,6 @@ func (m *UpdateDownloadTaskRequest) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Token
 
 	// no validation rules for DownloadTaskId
 
@@ -1550,8 +1542,6 @@ func (m *DeleteDownloadTaskRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Token
-
 	// no validation rules for DownloadTaskId
 
 	if len(errors) > 0 {
@@ -1757,8 +1747,6 @@ func (m *GetDownloadTaskFileRequest) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Token
 
 	// no validation rules for DownloadTaskId
 
