@@ -15,7 +15,241 @@
   "produces": [
     "application/json"
   ],
-  "paths": {},
+  "paths": {
+    "/go_load.v1.GoLoadService/CreateAccount": {
+      "post": {
+        "operationId": "GoLoadService_CreateAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateAccountRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/CreateDownloadTask": {
+      "post": {
+        "operationId": "GoLoadService_CreateDownloadTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateDownloadTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateDownloadTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/CreateSession": {
+      "post": {
+        "operationId": "GoLoadService_CreateSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSessionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/DeleteDownloadTask": {
+      "post": {
+        "operationId": "GoLoadService_DeleteDownloadTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteDownloadTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteDownloadTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/GetDownloadTaskFile": {
+      "post": {
+        "operationId": "GoLoadService_GetDownloadTaskFile",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1GetDownloadTaskFileResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1GetDownloadTaskFileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetDownloadTaskFileRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/GetDownloadTaskList": {
+      "post": {
+        "operationId": "GoLoadService_GetDownloadTaskList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetDownloadTaskListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetDownloadTaskListRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    },
+    "/go_load.v1.GoLoadService/UpdateDownloadTask": {
+      "post": {
+        "operationId": "GoLoadService_UpdateDownloadTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateDownloadTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateDownloadTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GoLoadService"
+        ]
+      }
+    }
+  },
   "definitions": {
     "protobufAny": {
       "type": "object",
@@ -57,12 +291,34 @@
         }
       }
     },
+    "v1CreateAccountRequest": {
+      "type": "object",
+      "properties": {
+        "accountName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateAccountResponse": {
       "type": "object",
       "properties": {
         "accountId": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "v1CreateDownloadTaskRequest": {
+      "type": "object",
+      "properties": {
+        "downloadType": {
+          "$ref": "#/definitions/v1DownloadType"
+        },
+        "url": {
+          "type": "string"
         }
       }
     },
@@ -74,11 +330,31 @@
         }
       }
     },
+    "v1CreateSessionRequest": {
+      "type": "object",
+      "properties": {
+        "accountName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateSessionResponse": {
       "type": "object",
       "properties": {
         "account": {
           "$ref": "#/definitions/v1Account"
+        }
+      }
+    },
+    "v1DeleteDownloadTaskRequest": {
+      "type": "object",
+      "properties": {
+        "downloadTaskId": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -125,12 +401,34 @@
       ],
       "default": "DOWNLOAD_TYPE_UNSPECIFIED"
     },
+    "v1GetDownloadTaskFileRequest": {
+      "type": "object",
+      "properties": {
+        "downloadTaskId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "v1GetDownloadTaskFileResponse": {
       "type": "object",
       "properties": {
         "data": {
           "type": "string",
           "format": "byte"
+        }
+      }
+    },
+    "v1GetDownloadTaskListRequest": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -147,6 +445,18 @@
         "totalDownloadTaskCount": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "v1UpdateDownloadTaskRequest": {
+      "type": "object",
+      "properties": {
+        "downloadTaskId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "url": {
+          "type": "string"
         }
       }
     },
