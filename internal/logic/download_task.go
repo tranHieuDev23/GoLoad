@@ -11,7 +11,7 @@ import (
 
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/producer"
-	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
+	go_load "github.com/tranHieuDev23/GoLoad/internal/generated/go_load/v1"
 )
 
 type CreateDownloadTaskParams struct {
@@ -96,7 +96,7 @@ func (d downloadTask) databaseDownloadTaskToProtoDownloadTask(
 		},
 		DownloadType:   downloadTask.DownloadType,
 		Url:            downloadTask.URL,
-		DownloadStatus: go_load.DownloadStatus_Pending,
+		DownloadStatus: downloadTask.DownloadStatus,
 	}
 }
 
@@ -118,7 +118,7 @@ func (d downloadTask) CreateDownloadTask(
 		OfAccountID:    accountID,
 		DownloadType:   params.DownloadType,
 		URL:            params.URL,
-		DownloadStatus: go_load.DownloadStatus_Pending,
+		DownloadStatus: go_load.DownloadStatus_DOWNLOAD_STATUS_PENDING,
 		Metadata: database.JSON{
 			Data: make(map[string]any),
 		},

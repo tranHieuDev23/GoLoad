@@ -1,0 +1,162 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "go_load/v1/go_load.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "GoLoadService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "accountName": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CreateAccountResponse": {
+      "type": "object",
+      "properties": {
+        "accountId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1CreateDownloadTaskResponse": {
+      "type": "object",
+      "properties": {
+        "downloadTask": {
+          "$ref": "#/definitions/v1DownloadTask"
+        }
+      }
+    },
+    "v1CreateSessionResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/v1Account"
+        }
+      }
+    },
+    "v1DeleteDownloadTaskResponse": {
+      "type": "object"
+    },
+    "v1DownloadStatus": {
+      "type": "string",
+      "enum": [
+        "DOWNLOAD_STATUS_UNSPECIFIED",
+        "DOWNLOAD_STATUS_PENDING",
+        "DOWNLOAD_STATUS_DOWNLOADING",
+        "DOWNLOAD_STATUS_FAILED",
+        "DOWNLOAD_STATUS_SUCCESS"
+      ],
+      "default": "DOWNLOAD_STATUS_UNSPECIFIED"
+    },
+    "v1DownloadTask": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "ofAccount": {
+          "$ref": "#/definitions/v1Account"
+        },
+        "downloadType": {
+          "$ref": "#/definitions/v1DownloadType"
+        },
+        "url": {
+          "type": "string"
+        },
+        "downloadStatus": {
+          "$ref": "#/definitions/v1DownloadStatus"
+        }
+      }
+    },
+    "v1DownloadType": {
+      "type": "string",
+      "enum": [
+        "DOWNLOAD_TYPE_UNSPECIFIED",
+        "DOWNLOAD_TYPE_HTTP"
+      ],
+      "default": "DOWNLOAD_TYPE_UNSPECIFIED"
+    },
+    "v1GetDownloadTaskFileResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1GetDownloadTaskListResponse": {
+      "type": "object",
+      "properties": {
+        "downloadTaskList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DownloadTask"
+          }
+        },
+        "totalDownloadTaskCount": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1UpdateDownloadTaskResponse": {
+      "type": "object",
+      "properties": {
+        "downloadTask": {
+          "$ref": "#/definitions/v1DownloadTask"
+        }
+      }
+    }
+  }
+}

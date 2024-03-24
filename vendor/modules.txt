@@ -1,3 +1,7 @@
+# buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20230802163732-1c33ebd9ecfa.1
+## explicit
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate/priv
 # github.com/IBM/sarama v1.43.0
 ## explicit; go 1.19
 github.com/IBM/sarama
@@ -30,9 +34,6 @@ github.com/eapache/go-xerial-snappy
 # github.com/eapache/queue v1.1.0
 ## explicit
 github.com/eapache/queue
-# github.com/envoyproxy/protoc-gen-validate v1.0.4
-## explicit; go 1.19
-github.com/envoyproxy/protoc-gen-validate/validate
 # github.com/go-gorp/gorp/v3 v3.1.0
 ## explicit; go 1.18
 github.com/go-gorp/gorp/v3

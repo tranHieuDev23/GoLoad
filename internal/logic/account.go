@@ -11,7 +11,7 @@ import (
 
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/cache"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
-	"github.com/tranHieuDev23/GoLoad/internal/generated/grpc/go_load"
+	go_load "github.com/tranHieuDev23/GoLoad/internal/generated/go_load/v1"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 

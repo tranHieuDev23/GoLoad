@@ -3,9 +3,9 @@ module github.com/tranHieuDev23/GoLoad
 go 1.21.5
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20230802163732-1c33ebd9ecfa.1
 	github.com/IBM/sarama v1.43.0
 	github.com/doug-martin/goqu/v9 v9.19.0
-	github.com/envoyproxy/protoc-gen-validate v1.0.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible

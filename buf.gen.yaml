@@ -1,0 +1,25 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: grpc/go_load
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/bufbuild/protovalidate
+plugins:
+  - plugin: buf.build/protocolbuffers/go
+    out: internal/generated
+    opt: paths=source_relative
+  - plugin: buf.build/grpc/go
+    out: internal/generated
+    opt: paths=source_relative
+  - plugin: buf.build/grpc-ecosystem/gateway
+    out: internal/generated
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  - plugin: buf.build/bufbuild/validate-go
+    out: internal/generated
+    opt: paths=source_relative
+  - plugin: buf.build/grpc-ecosystem/openapiv2:v2.19.1
+    out: api
