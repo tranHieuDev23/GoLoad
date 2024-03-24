@@ -103,7 +103,7 @@ message UpdateDownloadTaskResponse {
 
 message DeleteDownloadTaskRequest {
     string token = 1;
-    DownloadTask download_task = 2;
+    uint64 download_task_id = 2;
 }
 
 message DeleteDownloadTaskResponse {}

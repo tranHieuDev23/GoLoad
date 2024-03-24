@@ -1552,34 +1552,7 @@ func (m *DeleteDownloadTaskRequest) validate(all bool) error {
 
 	// no validation rules for Token
 
-	if all {
-		switch v := interface{}(m.GetDownloadTask()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, DeleteDownloadTaskRequestValidationError{
-					field:  "DownloadTask",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, DeleteDownloadTaskRequestValidationError{
-					field:  "DownloadTask",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDownloadTask()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return DeleteDownloadTaskRequestValidationError{
-				field:  "DownloadTask",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for DownloadTaskId
 
 	if len(errors) > 0 {
 		return DeleteDownloadTaskRequestMultiError(errors)

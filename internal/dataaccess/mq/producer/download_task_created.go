@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
@@ -17,7 +16,7 @@ const (
 )
 
 type DownloadTaskCreated struct {
-	DownloadTask database.DownloadTask
+	ID uint64 `json:"id"`
 }
 
 type DownloadTaskCreatedProducer interface {

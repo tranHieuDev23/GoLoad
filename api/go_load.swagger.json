@@ -333,8 +333,9 @@
         "token": {
           "type": "string"
         },
-        "downloadTask": {
-          "$ref": "#/definitions/go_loadDownloadTask"
+        "downloadTaskId": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
