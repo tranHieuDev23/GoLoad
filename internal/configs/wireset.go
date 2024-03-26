@@ -11,4 +11,5 @@ var WireSet = wire.NewSet(
 	wire.FieldsOf(new(Config), "Database"),
 	wire.FieldsOf(new(Config), "Cache"),
 	wire.FieldsOf(new(Config), "MQ"),
+	wire.FieldsOf(new(Config), "Download"),
 )

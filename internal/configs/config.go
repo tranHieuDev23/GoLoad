@@ -19,6 +19,7 @@ type Config struct {
 	Database Database `yaml:"database"`
 	Cache    Cache    `yaml:"cache"`
 	MQ       MQ       `yaml:"mq"`
+	Download Download `yaml:"download"`
 }
 
 func NewConfig(filePath ConfigFilePath) (Config, error) {

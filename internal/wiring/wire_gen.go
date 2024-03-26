@@ -8,11 +8,13 @@ package wiring
 
 import (
 	"github.com/google/wire"
+
 	"github.com/tranHieuDev23/GoLoad/internal/app"
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/cache"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
+	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/file"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/consumer"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/producer"
 	"github.com/tranHieuDev23/GoLoad/internal/handler"
@@ -67,13 +69,20 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 		return nil, nil, err
 	}
 	downloadTaskCreatedProducer := producer.NewDownloadTaskCreatedProducer(producerClient, logger)
-	downloadTask := logic.NewDownloadTask(token, accountDataAccessor, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, logger)
+	download := config.Download
+	fileClient, err := file.NewClient(download, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	downloadTask := logic.NewDownloadTask(token, accountDataAccessor, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, fileClient, logger)
 	goLoadServiceServer := grpc.NewHandler(account, downloadTask)
 	configsGRPC := config.GRPC
 	server := grpc.NewServer(goLoadServiceServer, configsGRPC, logger)
 	configsHTTP := config.HTTP
 	httpServer := http.NewServer(configsGRPC, configsHTTP, auth, logger)
-	downloadTaskCreated := consumers.NewDownloadTaskCreated(logger)
+	downloadTaskCreated := consumers.NewDownloadTaskCreated(downloadTask, logger)
 	consumerConsumer, err := consumer.NewConsumer(mq, logger)
 	if err != nil {
 		cleanup2()
