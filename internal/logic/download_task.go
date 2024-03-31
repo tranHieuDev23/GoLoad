@@ -7,11 +7,13 @@ import (
 	"io"
 
 	"github.com/doug-martin/goqu/v9"
+	"github.com/gammazero/workerpool"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/database"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/file"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/producer"
@@ -69,8 +71,10 @@ type DownloadTask interface {
 	GetDownloadTaskList(context.Context, GetDownloadTaskListParams) (GetDownloadTaskListOutput, error)
 	UpdateDownloadTask(context.Context, UpdateDownloadTaskParams) (UpdateDownloadTaskOutput, error)
 	DeleteDownloadTask(context.Context, DeleteDownloadTaskParams) error
+	ExecuteAllPendingDownloadTask(context.Context) error
 	ExecuteDownloadTask(context.Context, uint64) error
 	GetDownloadTaskFile(context.Context, GetDownloadTaskFileParams) (io.ReadCloser, error)
+	UpdateDownloadingAndFailedDownloadTaskStatusToPending(context.Context) error
 }
 
 type downloadTask struct {
@@ -81,6 +85,7 @@ type downloadTask struct {
 	goquDatabase                *goqu.Database
 	fileClient                  file.Client
 	logger                      *zap.Logger
+	cronConfig                  configs.Cron
 }
 
 func NewDownloadTask(
@@ -91,6 +96,7 @@ func NewDownloadTask(
 	goquDatabase *goqu.Database,
 	fileClient file.Client,
 	logger *zap.Logger,
+	cronConfig configs.Cron,
 ) DownloadTask {
 	return &downloadTask{
 		tokenLogic:                  tokenLogic,
@@ -100,6 +106,7 @@ func NewDownloadTask(
 		goquDatabase:                goquDatabase,
 		fileClient:                  fileClient,
 		logger:                      logger,
+		cronConfig:                  cronConfig,
 	}
 }
 
@@ -261,6 +268,38 @@ func (d downloadTask) DeleteDownloadTask(ctx context.Context, params DeleteDownl
 	})
 }
 
+func (d downloadTask) ExecuteAllPendingDownloadTask(ctx context.Context) error {
+	logger := utils.LoggerWithContext(ctx, d.logger)
+
+	pendingDownloadTaskIDList, err := d.downloadTaskDataAccessor.GetPendingDownloadTaskIDList(ctx)
+	if err != nil {
+		return err
+	}
+	if len(pendingDownloadTaskIDList) == 0 {
+		logger.Info("no pending download task found")
+		return nil
+	}
+
+	logger.
+		With(zap.Int("len(pending_download_task_id_list)", len(pendingDownloadTaskIDList))).
+		Info("pending download task found")
+
+	workerPool := workerpool.New(d.cronConfig.ExecuteAllPendingDownloadTask.ConcurrencyLimit)
+	for _, id := range pendingDownloadTaskIDList {
+		workerPool.Submit(func() {
+			if executeDownloadTaskErr := d.ExecuteDownloadTask(ctx, id); executeDownloadTaskErr != nil {
+				logger.
+					With(zap.Uint64("download_task_id", id)).
+					With(zap.Error(executeDownloadTaskErr)).
+					Error("failed to execute download_task")
+			}
+		})
+	}
+
+	workerPool.StopWait()
+	return nil
+}
+
 func (d downloadTask) updateDownloadTaskStatusFromPendingToDownloading(
 	ctx context.Context,
 	id uint64,
@@ -307,6 +346,16 @@ func (d downloadTask) updateDownloadTaskStatusFromPendingToDownloading(
 	return updated, downloadTask, nil
 }
 
+func (d downloadTask) updateDownloadTaskStatusToFailed(ctx context.Context, downloadTask database.DownloadTask) {
+	logger := utils.LoggerWithContext(ctx, d.logger).With(zap.Uint64("id", downloadTask.ID))
+
+	downloadTask.DownloadStatus = go_load.DownloadStatus_DOWNLOAD_STATUS_FAILED
+	updateDownloadTaskErr := d.downloadTaskDataAccessor.UpdateDownloadTask(ctx, downloadTask)
+	if updateDownloadTaskErr != nil {
+		logger.With(zap.Error(updateDownloadTaskErr)).Warn("failed to update download task status to failed")
+	}
+}
+
 func (d downloadTask) ExecuteDownloadTask(ctx context.Context, id uint64) error {
 	logger := utils.LoggerWithContext(ctx, d.logger).With(zap.Uint64("id", id))
 
@@ -327,12 +376,15 @@ func (d downloadTask) ExecuteDownloadTask(ctx context.Context, id uint64) error 
 
 	default:
 		logger.With(zap.Any("download_type", downloadTask.DownloadType)).Error("unsupported download type")
+		d.updateDownloadTaskStatusToFailed(ctx, downloadTask)
 		return nil
 	}
 
 	fileName := fmt.Sprintf("download_file_%d", id)
 	fileWriteCloser, err := d.fileClient.Write(ctx, fileName)
 	if err != nil {
+		logger.With(zap.Error(err)).Error("failed to get download file writer")
+		d.updateDownloadTaskStatusToFailed(ctx, downloadTask)
 		return err
 	}
 
@@ -341,6 +393,7 @@ func (d downloadTask) ExecuteDownloadTask(ctx context.Context, id uint64) error 
 	metadata, err := downloader.Download(ctx, fileWriteCloser)
 	if err != nil {
 		logger.With(zap.Error(err)).Error("failed to download")
+		d.updateDownloadTaskStatusToFailed(ctx, downloadTask)
 		return err
 	}
 
@@ -393,4 +446,8 @@ func (d downloadTask) GetDownloadTaskFile(
 	}
 
 	return d.fileClient.Read(ctx, fileName.(string))
+}
+
+func (d downloadTask) UpdateDownloadingAndFailedDownloadTaskStatusToPending(ctx context.Context) error {
+	return d.downloadTaskDataAccessor.UpdateDownloadingAndFailedDownloadTaskStatusToPending(ctx)
 }

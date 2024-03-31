@@ -19,6 +19,7 @@ type Config struct {
 	Database Database `yaml:"database"`
 	Cache    Cache    `yaml:"cache"`
 	MQ       MQ       `yaml:"mq"`
+	Cron     Cron     `yaml:"cron"`
 	Download Download `yaml:"download"`
 }
 

@@ -73,9 +73,9 @@ docker-compose-dev-up:
 docker-compose-dev-down:
 	docker-compose -f deployments/docker-compose.dev.yml down
 
-.PHONY: run-server
-run-server:
-	go run cmd/$(PROJECT_NAME)/*.go server
+.PHONY: run-standalone-server
+run-standalone-server:
+	go run cmd/$(PROJECT_NAME)/*.go standalone-server
 
 .PHONY: lint
 lint:

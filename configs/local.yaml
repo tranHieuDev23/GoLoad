@@ -23,6 +23,12 @@ grpc:
   address: "0.0.0.0:8080"
   get_download_task_file:
     response_buffer_size: 1kB
+cron:
+  execute_all_pending_download_task:
+    schedule: "@every 1m"
+    concurrency_limit: 8
+  update_downloading_and_failed_download_task_status_to_pending:
+    schedule: "@every 30m"
 http:
   address: "0.0.0.0:8081"
 download:

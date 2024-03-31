@@ -8,6 +8,7 @@ package wiring
 
 import (
 	"github.com/google/wire"
+
 	"github.com/tranHieuDev23/GoLoad/internal/app"
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess"
@@ -20,13 +21,14 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/handler/consumers"
 	"github.com/tranHieuDev23/GoLoad/internal/handler/grpc"
 	"github.com/tranHieuDev23/GoLoad/internal/handler/http"
+	"github.com/tranHieuDev23/GoLoad/internal/handler/jobs"
 	"github.com/tranHieuDev23/GoLoad/internal/logic"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
 )
 
 // Injectors from wire.go:
 
-func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(), error) {
+func InitializeStandaloneServer(configFilePath configs.ConfigFilePath) (*app.StandaloneServer, func(), error) {
 	config, err := configs.NewConfig(configFilePath)
 	if err != nil {
 		return nil, nil, err
@@ -75,7 +77,8 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 		cleanup()
 		return nil, nil, err
 	}
-	downloadTask := logic.NewDownloadTask(token, accountDataAccessor, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, fileClient, logger)
+	cron := config.Cron
+	downloadTask := logic.NewDownloadTask(token, accountDataAccessor, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, fileClient, logger, cron)
 	configsGRPC := config.GRPC
 	goLoadServiceServer, err := grpc.NewHandler(account, downloadTask, configsGRPC)
 	if err != nil {
@@ -94,8 +97,10 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 		return nil, nil, err
 	}
 	root := consumers.NewRoot(downloadTaskCreated, consumerConsumer, logger)
-	appServer := app.NewServer(server, httpServer, root, logger)
-	return appServer, func() {
+	executeAllPendingDownloadTask := jobs.NewExecuteAllPendingDownloadTask(downloadTask)
+	updateDownloadingAndFailedDownloadTaskStatusToPending := jobs.NewUpdateDownloadingAndFailedDownloadTaskStatusToPending(downloadTask)
+	standaloneServer := app.NewStandaloneServer(server, httpServer, root, executeAllPendingDownloadTask, updateDownloadingAndFailedDownloadTaskStatusToPending, logger, cron)
+	return standaloneServer, func() {
 		cleanup2()
 		cleanup()
 	}, nil
