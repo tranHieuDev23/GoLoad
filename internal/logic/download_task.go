@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/samber/lo"
@@ -16,6 +17,10 @@ import (
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess/mq/producer"
 	go_load "github.com/tranHieuDev23/GoLoad/internal/generated/go_load/v1"
 	"github.com/tranHieuDev23/GoLoad/internal/utils"
+)
+
+const (
+	downloadTaskMetadataFieldNameFileName = "file-name"
 )
 
 type CreateDownloadTaskParams struct {
@@ -54,12 +59,18 @@ type DeleteDownloadTaskParams struct {
 	DownloadTaskID uint64
 }
 
+type GetDownloadTaskFileParams struct {
+	Token          string
+	DownloadTaskID uint64
+}
+
 type DownloadTask interface {
 	CreateDownloadTask(context.Context, CreateDownloadTaskParams) (CreateDownloadTaskOutput, error)
 	GetDownloadTaskList(context.Context, GetDownloadTaskListParams) (GetDownloadTaskListOutput, error)
 	UpdateDownloadTask(context.Context, UpdateDownloadTaskParams) (UpdateDownloadTaskOutput, error)
 	DeleteDownloadTask(context.Context, DeleteDownloadTaskParams) error
 	ExecuteDownloadTask(context.Context, uint64) error
+	GetDownloadTaskFile(context.Context, GetDownloadTaskFileParams) (io.ReadCloser, error)
 }
 
 type downloadTask struct {
@@ -333,7 +344,7 @@ func (d downloadTask) ExecuteDownloadTask(ctx context.Context, id uint64) error 
 		return err
 	}
 
-	metadata["file-name"] = fileName
+	metadata[downloadTaskMetadataFieldNameFileName] = fileName
 	downloadTask.DownloadStatus = go_load.DownloadStatus_DOWNLOAD_STATUS_SUCCESS
 	downloadTask.Metadata = database.JSON{
 		Data: metadata,
@@ -347,4 +358,39 @@ func (d downloadTask) ExecuteDownloadTask(ctx context.Context, id uint64) error 
 	logger.Info("download task executed successfully")
 
 	return nil
+}
+
+func (d downloadTask) GetDownloadTaskFile(
+	ctx context.Context,
+	params GetDownloadTaskFileParams,
+) (io.ReadCloser, error) {
+	accountID, _, err := d.tokenLogic.GetAccountIDAndExpireTime(ctx, params.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	downloadTask, err := d.downloadTaskDataAccessor.GetDownloadTask(ctx, params.DownloadTaskID)
+	if err != nil {
+		return nil, err
+	}
+
+	if downloadTask.OfAccountID != accountID {
+		return nil, status.Error(codes.PermissionDenied, "trying to get file of a download task the account does not own")
+	}
+
+	if downloadTask.DownloadStatus != go_load.DownloadStatus_DOWNLOAD_STATUS_SUCCESS {
+		return nil, status.Error(codes.InvalidArgument, "download task does not have status of success")
+	}
+
+	downloadTaskMetadata, ok := downloadTask.Metadata.Data.(map[string]any)
+	if !ok {
+		return nil, status.Error(codes.Internal, "download task metadata is not a map[string]any")
+	}
+
+	fileName, ok := downloadTaskMetadata[downloadTaskMetadataFieldNameFileName]
+	if !ok {
+		return nil, status.Error(codes.Internal, "download task metadata does not contain file name")
+	}
+
+	return d.fileClient.Read(ctx, fileName.(string))
 }

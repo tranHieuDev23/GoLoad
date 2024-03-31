@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	go_load "github.com/tranHieuDev23/GoLoad/internal/generated/go_load/v1"
 	"github.com/tranHieuDev23/GoLoad/internal/logic"
 )
@@ -17,18 +18,26 @@ const (
 
 type Handler struct {
 	go_load.UnimplementedGoLoadServiceServer
-	accountLogic      logic.Account
-	downloadTaskLogic logic.DownloadTask
+	accountLogic                                 logic.Account
+	downloadTaskLogic                            logic.DownloadTask
+	getDownloadTaskFileResponseBufferSizeInBytes uint64
 }
 
 func NewHandler(
 	accountLogic logic.Account,
 	downloadTaskLogic logic.DownloadTask,
-) go_load.GoLoadServiceServer {
+	grpcConfig configs.GRPC,
+) (go_load.GoLoadServiceServer, error) {
+	getDownloadTaskFileResponseBufferSizeInBytes, err := grpcConfig.GetDownloadTaskFile.GetResponseBufferSizeInBytes()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Handler{
 		accountLogic:      accountLogic,
 		downloadTaskLogic: downloadTaskLogic,
-	}
+		getDownloadTaskFileResponseBufferSizeInBytes: getDownloadTaskFileResponseBufferSizeInBytes,
+	}, nil
 }
 
 func (a Handler) getAuthTokenMetadata(ctx context.Context) string {
@@ -117,10 +126,32 @@ func (a Handler) DeleteDownloadTask(
 }
 
 func (a Handler) GetDownloadTaskFile(
-	*go_load.GetDownloadTaskFileRequest,
-	go_load.GoLoadService_GetDownloadTaskFileServer,
+	request *go_load.GetDownloadTaskFileRequest,
+	server go_load.GoLoadService_GetDownloadTaskFileServer,
 ) error {
-	panic("unimplemented")
+	outputReader, err := a.downloadTaskLogic.GetDownloadTaskFile(server.Context(), logic.GetDownloadTaskFileParams{
+		Token:          a.getAuthTokenMetadata(server.Context()),
+		DownloadTaskID: request.GetDownloadTaskId(),
+	})
+	if err != nil {
+		return err
+	}
+
+	defer outputReader.Close()
+
+	for {
+		responseBuffer := make([]byte, a.getDownloadTaskFileResponseBufferSizeInBytes)
+		readByteCount, readErr := outputReader.Read(responseBuffer)
+		if readErr != nil {
+			return readErr
+		}
+
+		if readByteCount == 0 {
+			break
+		}
+	}
+
+	return nil
 }
 
 func (a Handler) GetDownloadTaskList(

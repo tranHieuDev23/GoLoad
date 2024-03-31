@@ -8,7 +8,6 @@ package wiring
 
 import (
 	"github.com/google/wire"
-
 	"github.com/tranHieuDev23/GoLoad/internal/app"
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess"
@@ -77,8 +76,13 @@ func InitializeServer(configFilePath configs.ConfigFilePath) (*app.Server, func(
 		return nil, nil, err
 	}
 	downloadTask := logic.NewDownloadTask(token, accountDataAccessor, downloadTaskDataAccessor, downloadTaskCreatedProducer, goquDatabase, fileClient, logger)
-	goLoadServiceServer := grpc.NewHandler(account, downloadTask)
 	configsGRPC := config.GRPC
+	goLoadServiceServer, err := grpc.NewHandler(account, downloadTask, configsGRPC)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	server := grpc.NewServer(goLoadServiceServer, configsGRPC, logger)
 	configsHTTP := config.HTTP
 	httpServer := http.NewServer(configsGRPC, configsHTTP, auth, logger)
