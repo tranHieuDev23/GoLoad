@@ -21,6 +21,8 @@ auth:
     regenerate_token_before_expiry: 1h
 grpc:
   address: "0.0.0.0:8080"
+  get_download_task_file:
+    response_buffer_size: 1kB
 http:
   address: "0.0.0.0:8081"
 download:

@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"errors"
+	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -140,14 +142,26 @@ func (a Handler) GetDownloadTaskFile(
 	defer outputReader.Close()
 
 	for {
-		responseBuffer := make([]byte, a.getDownloadTaskFileResponseBufferSizeInBytes)
-		readByteCount, readErr := outputReader.Read(responseBuffer)
-		if readErr != nil {
-			return readErr
+		dataBuffer := make([]byte, a.getDownloadTaskFileResponseBufferSizeInBytes)
+		readByteCount, readErr := outputReader.Read(dataBuffer)
+
+		if readByteCount > 0 {
+			sendErr := server.Send(&go_load.GetDownloadTaskFileResponse{
+				Data: dataBuffer[:readByteCount],
+			})
+			if sendErr != nil {
+				return sendErr
+			}
+
+			continue
 		}
 
-		if readByteCount == 0 {
-			break
+		if readErr != nil {
+			if errors.Is(readErr, io.EOF) {
+				break
+			}
+
+			return readErr
 		}
 	}
 
