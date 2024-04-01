@@ -105,7 +105,11 @@ export class ApiService {
             StreamResultOfV1GetDownloadTaskFileResponseFromJSON(
               rawBodyChunk.value
             );
-          subscriber.next(jsonBodyChunk.result?.data);
+          if (!jsonBodyChunk.result?.data) {
+            return;
+          }
+
+          subscriber.next(btoa(jsonBodyChunk.result.data));
         },
         (error) => {
           subscriber.error(error);
