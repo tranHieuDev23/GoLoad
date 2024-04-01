@@ -1,0 +1,6 @@
+{
+    "/go_load.v1.GoLoadService/": {
+        "target": "http://localhost:8081",
+        "secure": false
+    }
+}

@@ -7,6 +7,7 @@ all: generate build-all
 .PHONY: generate
 generate:
 	buf generate api
+	openapi-generator generate -i api/go_load/v1/go_load.swagger.json -g typescript-fetch -o web/src/app/dataaccess/api
 	wire internal/wiring/wire.go
 
 .PHONY: build-linux-amd64

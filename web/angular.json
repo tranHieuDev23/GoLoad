@@ -30,6 +30,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/theme.less",
               "src/styles.scss"
             ],
             "scripts": []
@@ -65,7 +66,8 @@
               "buildTarget": "web:build:production"
             },
             "development": {
-              "buildTarget": "web:build:development"
+              "buildTarget": "web:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

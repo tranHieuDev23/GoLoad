@@ -8,7 +8,6 @@ package wiring
 
 import (
 	"github.com/google/wire"
-
 	"github.com/tranHieuDev23/GoLoad/internal/app"
 	"github.com/tranHieuDev23/GoLoad/internal/configs"
 	"github.com/tranHieuDev23/GoLoad/internal/dataaccess"
